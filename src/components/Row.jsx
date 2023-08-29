@@ -1,9 +1,12 @@
-import axios from "../axios";
+import "../Css/row.css";
+
 import React, { useEffect, useState } from "react";
+
+import axios from "../axios";
 import YouTube from "react-youtube";
 import movieTrailer from "movie-trailer";
 
-import "../Css/row.css";
+const baseImgUrl = "https://image.tmdb.org/t/p/original";
 
 function Row({ title, fetchUrl, isLargeRow }) {
   const [movies, setMovies] = useState([]);
@@ -13,13 +16,23 @@ function Row({ title, fetchUrl, isLargeRow }) {
     async function fetchData() {
       try {
         const res = await axios.get(fetchUrl);
-        setMovies(res.data.results);
+        const data = res.data.results;
+        onPosterClick(data[0]);
+
+        setMovies(data);
       } catch (error) {}
     }
 
     fetchData();
   }, [fetchUrl]);
 
+  const getPosterClasses = () => {
+    return `row__poster ${isLargeRow && `row__posterLarge`}`;
+  };
+
+  const getImgSrc = ({ poster_path, backdrop_path }) => {
+    return baseImgUrl + (isLargeRow ? poster_path : backdrop_path);
+  };
   const opts = {
     height: "390",
     width: "99%",
@@ -28,17 +41,27 @@ function Row({ title, fetchUrl, isLargeRow }) {
     },
   };
 
-  const onPosterClick = (movie) => {
+  const onPosterClick = async (movie) => {
     try {
-      if (trailerUrl) return setTrailerUrl("");
-
-      movieTrailer(movie?.title || "")
-        .then((url) => {
-          const urlParams = new URLSearchParams(new URL(url).search);
+      if (trailerUrl) {
+        // إذا كان هناك عنوان URL للفيديو متوفرًا بالفعل، قم بإزالته
+        setTrailerUrl("");
+      } else {
+        // قم ببحث وجلب عنوان URL لمقطع الفيديو الترويجي باستخدام movieTrailer
+        const videoUrl = await movieTrailer(movie?.title || "");
+        if (videoUrl) {
+          // استخدم URLSearchParams للعثور على معرف الفيديو (v) في عنوان URL وتعيينه في trailerUrl
+          const urlParams = new URLSearchParams(new URL(videoUrl).search);
           setTrailerUrl(urlParams.get("v"));
-        })
-        .catch((error) => {});
-    } catch (ex) {}
+        } else {
+          // إذا لم يتم العثور على مقطع فيديو ترويجي، يمكنك إتخاذ إجراء آخر مثل عرض رسالة خطأ
+          // console.log("مقطع فيديو ترويجي غير متاح لهذا الفيلم");
+        }
+      }
+    } catch (error) {
+      // يمكنك التعامل مع الأخطاء هنا إذا حدثت
+      // console.error("حدث خطأ أثناء جلب مقطع الفيديو الترويجي:", error);
+    }
   };
 
   return (
@@ -48,11 +71,9 @@ function Row({ title, fetchUrl, isLargeRow }) {
         {movies.map((movie) => (
           <img
             key={movie.id}
-            className={`row__poster ${isLargeRow && `row__posterLarge`}`}
-            src={
-              "https://image.tmdb.org/t/p/original" +
-              (isLargeRow ? movie.poster_path : movie.backdrop_path)
-            }
+            onClick={() => onPosterClick(movie)}
+            className={getPosterClasses()}
+            src={getImgSrc(movie)}
             alt={movie.name}
           />
         ))}

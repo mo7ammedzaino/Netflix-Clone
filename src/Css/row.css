@@ -17,13 +17,14 @@
   max-height: 100px;
   margin-right: 10px;
   transition: transform 450ms;
+  cursor: pointer;
 }
 .row__poster:hover {
-  transform: scale(1.08);
+  transform: scale(1.15);
 }
 .row__posterLarge {
   max-height: 250px;
 }
 .row__posterLarge:hover {
-  transform: scale(1.09);
+  transform: scale(1.2);
 }

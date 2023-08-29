@@ -2,21 +2,23 @@
 
 ## 🔴 Live Demo
 
-[Click here...](Link to live demo)
+[Click here...](https://netflix-clone-93981.web.app)
 
 ## Description
 
-.... with React and Firebase.
+Netflix-Clone with React and Firebase.
 
 ## Getting Started
 
 ### Dependencies
 
 - React
+- axios
+- tmdb-api
+- youtube-player
+- movie-trailer
 - React DOM
 - Firebase
-- MaterialUI
-- React Ticker
 
 ### Installation
 
